@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import './styles/main.scss';
+import Header from './components/header';
+import QuizCard from './components/quizcard';
+import Feedback from './components/feedback';
+import { useState } from 'react';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [questao, setQuestao] = useState({
+    pergunta: '(FGV) Numa Universidade com N alunos, 80 estudam Física, 90 Biologia, 55 Química, 32 Biologia e Física, 23 Química e Física, 16 biologia e Química e 8 estudam nas 3 faculdades. Sabendo-se que esta Universidade somente mantém as 3 faculdades, quantos alunos estão matriculados na Universidade?',
+    alternativas: ['{304}', '{162}', '{146}', '{154}','{N.D.A}'],
+    correta: 'B',
+  });
+  const [respostaUsuario, setRespostaUsuario] = useState<string | null>(null);
+  const [mostrarOpcoesGeracao, setMostrarOpcoesGeracao] = useState(false);
+
+  const verificarResposta = (resposta: string) => {
+    setRespostaUsuario(resposta);
+  };
+
+  const correta = respostaUsuario
+    ? respostaUsuario === questao.alternativas[1]
+    : null;
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <div className="container">
+      <Header />
+      <QuizCard
+        pergunta={questao.pergunta}
+        alternativas={questao.alternativas}
+        onResponder={verificarResposta}
+      />
+      <Feedback correta={correta} />
+
+      {/* Botão principal */}
+      <div className="gerador-container">
+        <button
+          className="button"
+          onClick={() => setMostrarOpcoesGeracao(!mostrarOpcoesGeracao)}
+        >
+          Gerar mais questões
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+
+        {/* Opções de quantidade */}
+        {mostrarOpcoesGeracao && (
+          <div className="botoes-geracao">
+            <button className="button">1 questão</button>
+            <button className="button">3 questões</button>
+            <button className="button">5 questões</button>
+          </div>
+        )}
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
