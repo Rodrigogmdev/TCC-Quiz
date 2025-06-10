@@ -29,7 +29,7 @@ body {
   margin: 0.5rem;
 
   &:hover {
-    background-color: darken($primary-color, 10%);
+    background-color: ($primary-color, 10%);
   }
 }
 
