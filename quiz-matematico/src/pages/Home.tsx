@@ -6,7 +6,7 @@ interface HomeProps {
   isLoggedIn: boolean; 
 }
 
-const Home = ({ onStartQuiz, onNavigateToFaq, isLoggedIn }: HomeProps) => {
+const Home = ({ onStartQuiz, isLoggedIn }: HomeProps) => {
   const [showOptions, setShowOptions] = useState(false);
 
   const handleStartClick = () => {

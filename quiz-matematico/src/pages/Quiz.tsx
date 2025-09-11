@@ -37,7 +37,7 @@ const Quiz = ({ numberOfQuestions, onQuizComplete }: QuizProps) => {
     setQuestao(null);
 
     try {
-      const questaoId = Math.floor(Math.random() * 5) + 1;
+      const questaoId = Math.floor(Math.random() * 15) + 1;
       const response = await fetch(`http://127.0.0.1:8000/questoes/${questaoId}`);
 
       if (!response.ok) {
