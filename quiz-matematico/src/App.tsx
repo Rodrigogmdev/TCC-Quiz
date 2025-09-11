@@ -2,14 +2,19 @@ import './styles/main.scss';
 import Header from './components/Header';
 import Home from './pages/Home';
 import Quiz from './pages/Quiz';
-import FAQ from './pages/Faq'; 
+import FAQ from './pages/Faq';
+import Auth from './pages/Auth'; 
 import { useState } from 'react';
 
-type CurrentPage = 'home' | 'quiz' | 'faq';
+type CurrentPage = 'home' | 'quiz' | 'faq' | 'auth';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<CurrentPage>('home');
   const [numberOfQuestions, setNumberOfQuestions] = useState(0);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authToken, setAuthToken] = useState<string | null>(null);
+
 
   const handleStartQuiz = (num: number) => {
     setNumberOfQuestions(num);
@@ -21,15 +26,23 @@ function App() {
     setNumberOfQuestions(0);
   };
 
-  const navigateToHome = () => {
-    setCurrentPage('home');
+  const navigateToHome = () => setCurrentPage('home');
+  const navigateToFaq = () => setCurrentPage('faq');
+  const navigateToAuth = () => setCurrentPage('auth');
+
+  const handleLoginSuccess = (token: string) => {
+    setAuthToken(token);
+    setIsLoggedIn(true);
+    setCurrentPage('home'); 
   };
 
-  const navigateToFaq = () => {
-    setCurrentPage('faq');
+  const handleLogout = () => {
+    setAuthToken(null);
+    setIsLoggedIn(false);
+    setCurrentPage('home');
   };
   
-  
+
   const renderCurrentPage = () => {
     switch (currentPage) {
       case 'quiz':
@@ -41,15 +54,27 @@ function App() {
         );
       case 'faq':
         return <FAQ onNavigateToHome={navigateToHome} />;
+      case 'auth':
+        return <Auth onLoginSuccess={handleLoginSuccess} onNavigateToHome={navigateToHome} />;
       case 'home':
       default:
-        return <Home onStartQuiz={handleStartQuiz} onNavigateToFaq={navigateToFaq} />;
+        return (
+          <Home
+            onStartQuiz={handleStartQuiz}
+            onNavigateToFaq={navigateToFaq}
+            isLoggedIn={isLoggedIn} // Passar o estado de login
+          />
+        );
     }
   };
 
   return (
     <div className="container">
-      <Header />
+      <Header 
+        isLoggedIn={isLoggedIn}
+        onNavigateToAuth={navigateToAuth}
+        onLogout={handleLogout}
+      />
       {renderCurrentPage()}
     </div>
   );

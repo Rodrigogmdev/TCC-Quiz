@@ -2,10 +2,11 @@ import { useState } from 'react';
 
 interface HomeProps {
   onStartQuiz: (numberOfQuestions: number) => void;
-  onNavigateToFaq: () => void; // Nova propriedade
+  onNavigateToFaq: () => void;
+  isLoggedIn: boolean; 
 }
 
-const Home = ({ onStartQuiz, onNavigateToFaq }: HomeProps) => {
+const Home = ({ onStartQuiz, onNavigateToFaq, isLoggedIn }: HomeProps) => {
   const [showOptions, setShowOptions] = useState(false);
 
   const handleStartClick = () => {
@@ -24,7 +25,6 @@ const Home = ({ onStartQuiz, onNavigateToFaq }: HomeProps) => {
           <button className="button" onClick={handleStartClick}>
             Começar novo quiz
           </button>
-          {/* Botão para o FAQ */}
           <button className="button" onClick={onNavigateToFaq}>
             FAQ
           </button>
@@ -43,6 +43,12 @@ const Home = ({ onStartQuiz, onNavigateToFaq }: HomeProps) => {
               15 Questões
             </button>
           </div>
+          {/* Incentivo para Login */}
+          {!isLoggedIn && (
+            <p style={{ marginTop: '1rem', color: '#555' }}>
+              Crie uma conta ou faça login para salvar seu progresso e acessar mais funcionalidades!
+            </p>
+          )}
         </div>
       )}
     </div>
