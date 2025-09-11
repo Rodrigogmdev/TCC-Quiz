@@ -2,44 +2,65 @@ import './styles/main.scss';
 import Header from './components/Header';
 import QuizCard from './components/Quizcard';
 import Feedback from './components/feedback';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-// 1. A interface da questão agora espelha a estrutura necessária para o backend.
+// Interface da questao
 interface Questao {
+  id: number; 
   pergunta: string;
-  alternativas: string[]; // As alternativas ainda são strings para exibição
+  alternativas: string[];
   conjunto_a: number[];
   conjunto_b: number[];
   operacao: 'uniao' | 'interseccao' | 'diferenca';
 }
 
 function App() {
-  // 2. O estado da questão agora inclui os conjuntos e a operação.
-  //    Isso simula como a IA geraria os dados para um problema.
-  const [questao, setQuestao] = useState<Questao>({
-    pergunta: 'Qual é o resultado da união entre os conjuntos A = {1, 2, 3} e B = {3, 4, 5}?',
-    alternativas: ['{1, 2, 3, 4, 5}', '{3}', '{1, 2}', '{1, 2, 4, 5}'],
-    conjunto_a: [1, 2, 3],
-    conjunto_b: [3, 4, 5],
-    operacao: 'uniao',
-  });
-
-  // 3. Novo estado para o feedback. Ele guardará o valor booleano (true/false) retornado pela API.
+  const [questao, setQuestao] = useState<Questao | null>(null);
   const [feedback, setFeedback] = useState<boolean | null>(null);
-  const [carregando, setCarregando] = useState<boolean>(false);
+  const [carregando, setCarregando] = useState<boolean>(true); // Começa carregando
+  const [erro, setErro] = useState<string | null>(null);
 
-  // 4. Esta é a função assíncrona que chama seu backend.
-  const verificarResposta = async (resposta: string) => {
+  // Função para buscar uma nova questão do backend
+  const buscarNovaQuestao = async () => {
     setCarregando(true);
-    setFeedback(null); // Limpa o feedback anterior
+    setErro(null);
+    setFeedback(null);
+    setQuestao(null);
 
-    // Tenta converter a string de resposta (ex: "{1, 2, 3}") para um array de números
+    try {
+      // Gera um ID aleatório de 1 a 5 para buscar uma das questões que você cadastrou
+      const questaoId = Math.floor(Math.random() * 5) + 1;
+      const response = await fetch(`http://127.0.0.1:8000/questoes/${questaoId}`);
+
+      if (!response.ok) {
+        throw new Error('Falha ao buscar a questão. O backend está rodando?');
+      }
+      const data: Questao = await response.json();
+      setQuestao(data);
+    } catch (error: any) {
+      setErro(error.message);
+    } finally {
+      setCarregando(false);
+    }
+  };
+
+  // useEffect para buscar a primeira questão quando o componente montar
+  useEffect(() => {
+    buscarNovaQuestao();
+  }, []);
+
+  // Função para  o backend  verificar a resposta
+  const verificarResposta = async (resposta: string) => {
+    if (!questao) return; 
+
+    setCarregando(true);
+    setFeedback(null);
+
     let respostaFormatada: number[];
     try {
       respostaFormatada = JSON.parse(resposta.replace(/{/g, '[').replace(/}/g, ']'));
     } catch (error) {
       console.error("Erro ao formatar a resposta do aluno:", error);
-      // Opcional: mostrar um erro para o usuário se o formato for inválido
       setCarregando(false);
       return;
     }
@@ -52,7 +73,6 @@ function App() {
     };
 
     try {
-      // IMPORTANTE: Substitua pela URL real do seu backend FastAPI quando estiver rodando.
       const response = await fetch('http://127.0.0.1:8000/verificar', {
         method: 'POST',
         headers: {
@@ -64,34 +84,48 @@ function App() {
       if (!response.ok) {
         throw new Error(`Erro na API: ${response.statusText}`);
       }
-
       const data = await response.json();
-
-      // 5. Atualiza o estado de feedback com a resposta do backend.
       setFeedback(data.correta);
-
     } catch (error) {
       console.error('Falha ao chamar o backend:', error);
-      // Opcional: Mostrar uma mensagem de erro na tela para o usuário.
-      setFeedback(false); // Considera como incorreto se a API falhar
+      setFeedback(false);
     } finally {
       setCarregando(false);
     }
   };
 
+  const renderContent = () => {
+    if (carregando && !questao) {
+      return <p>Carregando questão...</p>;
+    }
+    if (erro) {
+      return <p style={{ color: 'red' }}>Erro: {erro}</p>;
+    }
+    if (questao) {
+      return (
+        <>
+          <QuizCard
+            pergunta={questao.pergunta}
+            alternativas={questao.alternativas}
+            onResponder={verificarResposta}
+          />
+          {carregando && <p>Verificando...</p>}
+          <Feedback correta={feedback} />
+        </>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="container">
       <Header />
-      <QuizCard
-        pergunta={questao.pergunta}
-        alternativas={questao.alternativas}
-        onResponder={verificarResposta}
-      />
-      {/* 6. O componente Feedback agora é controlado pelo estado 'feedback' */}
-      {carregando ? <p>Verificando...</p> : <Feedback correta={feedback} />}
-
-      {/* O resto da sua lógica de geração de questões permanece igual */}
-      {/* ... */}
+      {renderContent()}
+      <div className="gerador-container">
+        <button className="button" onClick={buscarNovaQuestao} disabled={carregando}>
+          Nova Questão
+        </button>
+      </div>
     </div>
   );
 }
