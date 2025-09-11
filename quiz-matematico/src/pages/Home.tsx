@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 interface HomeProps {
   onStartQuiz: (numberOfQuestions: number) => void;
+  onNavigateToFaq: () => void; // Nova propriedade
 }
 
-const Home = ({ onStartQuiz }: HomeProps) => {
+const Home = ({ onStartQuiz, onNavigateToFaq }: HomeProps) => {
   const [showOptions, setShowOptions] = useState(false);
 
   const handleStartClick = () => {
@@ -22,6 +23,10 @@ const Home = ({ onStartQuiz }: HomeProps) => {
         <div className="gerador-container">
           <button className="button" onClick={handleStartClick}>
             Começar novo quiz
+          </button>
+          {/* Botão para o FAQ */}
+          <button className="button" onClick={onNavigateToFaq}>
+            FAQ
           </button>
         </div>
       ) : (
