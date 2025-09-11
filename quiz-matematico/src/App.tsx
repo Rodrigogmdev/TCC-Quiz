@@ -68,15 +68,19 @@ function App() {
     }
   };
 
-  return (
-    <div className="container">
+   return (
+    <>
       <Header 
         isLoggedIn={isLoggedIn}
         onNavigateToAuth={navigateToAuth}
         onLogout={handleLogout}
+        onNavigateToFaq={navigateToFaq}
       />
-      {renderCurrentPage()}
-    </div>
+      
+      <div className="container">
+        {renderCurrentPage()}
+      </div>
+    </>
   );
 }
 

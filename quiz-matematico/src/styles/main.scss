@@ -1,35 +1,117 @@
-$bg-color: #f9f9f9;
-$primary-color: #2d6cdf;
-$correct-color: #4caf50;
-$error-color: #f44336;
 
+$bg-color: #121212;
+$primary-color: #E53935;
+$text-color: #FFFFFF;
+$container-bg: #1E1E1E;
+$correct-color: #4CAF50;
+$error-color: #F44336;
+
+
+body {
+  margin: 0;
+  background-color: $bg-color;
+  font-family: 'Roboto', sans-serif; // Garanta que a fonte base está aqui também
+  color: $text-color;
+}
 body {
   margin: 0;
   background-color: $bg-color;
   font-family: 'Segoe UI', sans-serif;
 }
 
-.container {
+.header-container {
+  width: 100%;
+  padding: 1rem 0; // Espaçamento vertical
+  background-color: $container-bg; // Usando a cor de fundo do container para consistência
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); // Sombra para dar destaque
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1); // Linha sutil de separação
+}
+
+// O conteúdo dentro do header, que será centralizado
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  // Mesmas propriedades do .container para garantir o alinhamento perfeito
   max-width: 600px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  padding: 0 2.5rem; // Espaçamento lateral para não colar nas bordas em telas menores
+  box-sizing: border-box;
+}
+
+// Estilos para o título, navegação e botões (podem ser os mesmos de antes)
+.header-title h3 {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  color: $primary-color;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-button {
+  background-color: transparent;
+  color: $text-color;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background-color: rgba(100, 100, 100, 0.1);
+    color: $primary-color;
+  }
+}
+
+.header-nav .button { // Deixa o botão de login/logout um pouco menor no header
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+.container {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  max-width: 600px;
+  margin: 3rem auto;
+  padding: 2.5rem;
+ 
+  background: linear-gradient(145deg, lighten($container-bg, 5%), darken($container-bg, 5%));
+  border-radius: 16px; 
+  
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .button {
   background-color: $primary-color;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
+  padding: 12px 24px; 
   border-radius: 8px;
   cursor: pointer;
   font-size: 1rem;
+  font-weight: 500; 
   margin: 0.5rem;
+  transition: all 0.3s ease-in-out; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
 
   &:hover {
-    background-color: ($primary-color, 10%);
+    background-color: darken($primary-color, 10%); 
+    transform: translateY(-3px); 
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); 
+  }
+
+  &:active {
+    transform: translateY(1px); 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 }
 

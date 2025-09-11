@@ -25,9 +25,6 @@ const Home = ({ onStartQuiz, onNavigateToFaq, isLoggedIn }: HomeProps) => {
           <button className="button" onClick={handleStartClick}>
             Começar novo quiz
           </button>
-          <button className="button" onClick={onNavigateToFaq}>
-            FAQ
-          </button>
         </div>
       ) : (
         <div style={{ textAlign: 'center' }}>
