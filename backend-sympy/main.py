@@ -1,4 +1,3 @@
-from sympy import FiniteSet
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -126,30 +125,17 @@ def ler_questao(questao_id: int, db: Session = Depends(get_db)):
     return db_questao
 
 class VerificacaoPayload(schemas.BaseModel):
-    resposta_aluno: list[int]
-    conjunto_a: list[int]
-    conjunto_b: list[int]
-    operacao: str
+    questao_id: int
+    resposta_aluno: int
 
 @app.post("/verificar")
-def verificar_resposta(payload: VerificacaoPayload):
-   
-    print(f"PAYLOAD RECEBIDO: {payload.dict()}")
+def verificar_resposta(payload: VerificacaoPayload, db: Session = Depends(get_db)):
     
-    A = FiniteSet(*payload.conjunto_a)
-    B = FiniteSet(*payload.conjunto_b)
-    R = FiniteSet(*payload.resposta_aluno)
+    db_questao = db.query(models.Questao).filter(models.Questao.id == payload.questao_id).first()
 
-    if payload.operacao == 'uniao':
-        correta = A.union(B)
-    elif payload.operacao == 'interseccao':
-        correta = A.intersect(B)
-    elif payload.operacao == 'diferenca':
-        correta = A - B
-    else:
-        return {"erro": "Operação desconhecida"}
+    if db_questao is None:
+        raise HTTPException(status_code=404, detail="Questão não encontrada")
+
+    is_correta = (db_questao.resposta_correta == payload.resposta_aluno)
     
-    resultado = {"correta": R == correta}
-    print(f"RESULTADO ENVIADO: {resultado}")
-    
-    return resultado
+    return {"correta": is_correta}
