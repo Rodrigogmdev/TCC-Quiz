@@ -1,15 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import QuizCard from '../components/Quizcard';
 import Feedback from '../components/feedback';
 
-// Interface da questao
 interface Questao {
   id: number;
   pergunta: string;
   alternativas: string[];
-  conjunto_a: number[];
-  conjunto_b: number[];
-  operacao: 'uniao' | 'interseccao' | 'diferenca';
 }
 
 interface QuizProps {
@@ -24,22 +20,18 @@ const Quiz = ({ numberOfQuestions, onQuizComplete }: QuizProps) => {
   const [erro, setErro] = useState<string | null>(null);
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
 
-  // Função para buscar uma nova questão do backend
   const buscarNovaQuestao = async () => {
     if (questionsAnswered >= numberOfQuestions) {
       onQuizComplete();
       return;
     }
-
     setCarregando(true);
     setErro(null);
     setFeedback(null);
     setQuestao(null);
-
     try {
-      const questaoId = Math.floor(Math.random() * 15) + 1;
+      const questaoId = Math.floor(Math.random() * 20) + 1; 
       const response = await fetch(`http://127.0.0.1:8000/questoes/${questaoId}`);
-
       if (!response.ok) {
         throw new Error('Falha ao buscar a questão. O backend está rodando?');
       }
@@ -52,32 +44,26 @@ const Quiz = ({ numberOfQuestions, onQuizComplete }: QuizProps) => {
     }
   };
 
-  // useEffect para buscar uma nova questão
   useEffect(() => {
     buscarNovaQuestao();
   }, [questionsAnswered]);
 
-  // Função para verificar a resposta
   const verificarResposta = async (resposta: string) => {
     if (!questao) return;
 
     setCarregando(true);
     setFeedback(null);
 
-    let respostaFormatada: number[];
-    try {
-      respostaFormatada = JSON.parse(resposta.replace(/{/g, '[').replace(/}/g, ']'));
-    } catch (error) {
-      console.error("Erro ao formatar a resposta do aluno:", error);
+    const respostaAluno = parseInt(resposta, 10);
+    if (isNaN(respostaAluno)) {
+      console.error("A alternativa clicada não contém um número válido:", resposta);
       setCarregando(false);
       return;
     }
 
     const payload = {
-      resposta_aluno: respostaFormatada,
-      conjunto_a: questao.conjunto_a,
-      conjunto_b: questao.conjunto_b,
-      operacao: questao.operacao,
+      questao_id: questao.id,
+      resposta_aluno: respostaAluno,
     };
 
     try {
@@ -104,7 +90,7 @@ const Quiz = ({ numberOfQuestions, onQuizComplete }: QuizProps) => {
       setFeedback(false);
     }
   };
-
+  
   const renderContent = () => {
     if (carregando && !questao) {
       return <p>Carregando questão...</p>;
