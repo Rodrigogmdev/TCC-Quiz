@@ -16,4 +16,5 @@ class Questao(Base):
     id = Column(Integer, primary_key=True, index=True)
     pergunta = Column(String, index=True)
     alternativas = Column(JSON)
-    resposta_correta = Column(Integer)
+    resposta_correta = Column(Integer) 
+    nivel = Column(Integer, index=True)

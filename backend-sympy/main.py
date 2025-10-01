@@ -10,6 +10,8 @@ from datetime import datetime, timedelta, timezone
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+from sqlalchemy.sql import func
+from typing import list 
 
 dotenv_path = Path(__file__).parent / ".env"
 load_dotenv(dotenv_path=dotenv_path)
@@ -117,12 +119,17 @@ def criar_questao(questao: schemas.QuestaoCreate, db: Session = Depends(get_db))
     db.refresh(nova_questao)
     return nova_questao
 
-@app.get("/questoes/{questao_id}", response_model=schemas.Questao)
-def ler_questao(questao_id: int, db: Session = Depends(get_db)):
-    db_questao = db.query(models.Questao).filter(models.Questao.id == questao_id).first()
-    if db_questao is None:
-        raise HTTPException(status_code=404, detail="Questão não encontrada")
-    return db_questao
+@app.get("/questoes/", response_model=List[schemas.Questao])
+def ler_questoes_por_nivel(nivel: int, limit: int, db: Session = Depends(get_db)):
+    questoes = db.query(models.Questao)\
+        .filter(models.Questao.nivel == nivel)\
+        .order_by(func.random())\
+        .limit(limit)\
+        .all()
+    if not questoes:
+        raise HTTPException(status_code=404, detail="Nenhuma questão encontrada para este nível.")
+    return questoes
+
 
 class VerificacaoPayload(schemas.BaseModel):
     questao_id: int

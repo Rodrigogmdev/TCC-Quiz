@@ -6,6 +6,7 @@ class QuestaoBase(BaseModel):
     pergunta: str
     alternativas: List[str]
     resposta_correta: int
+    nivel: int
 
 class QuestaoCreate(QuestaoBase):
     pass

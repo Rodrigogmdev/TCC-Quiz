@@ -11,7 +11,7 @@ type CurrentPage = 'home' | 'quiz' | 'faq' | 'auth';
 function App() {
   const [currentPage, setCurrentPage] = useState<CurrentPage>('home');
   const [numberOfQuestions, setNumberOfQuestions] = useState(0);
-
+  const [difficultyLevel, setDifficultyLevel] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authToken, setAuthToken] = useState<string | null>(null);
 
@@ -23,7 +23,7 @@ function App() {
 
   const handleQuizComplete = () => {
     setCurrentPage('home');
-    setNumberOfQuestions(0);
+    setDifficultyLevel(0);
   };
 
   const navigateToHome = () => setCurrentPage('home');
@@ -49,6 +49,7 @@ function App() {
         return (
           <Quiz
             numberOfQuestions={numberOfQuestions}
+            difficultyLevel={difficultyLevel}
             onQuizComplete={handleQuizComplete}
           />
         );
@@ -61,6 +62,7 @@ function App() {
         return (
           <Home
             onStartQuiz={handleStartQuiz}
+            setDifficultyLevel={setDifficultyLevel}
             onNavigateToFaq={navigateToFaq}
             isLoggedIn={isLoggedIn} // Passar o estado de login
           />
