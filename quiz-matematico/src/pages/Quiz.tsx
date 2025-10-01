@@ -15,13 +15,13 @@ interface QuizProps {
 }
 
 const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete }: QuizProps) => {
-  const [questoes, setQuestoes] = useState<Questao[]>([]); 
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); 
+  const [questoes, setQuestoes] = useState<Questao[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [feedback, setFeedback] = useState<boolean | null>(null);
   const [carregando, setCarregando] = useState<boolean>(true);
   const [erro, setErro] = useState<string | null>(null);
 
- const avancarParaProximaQuestao = () => {
+  const avancarParaProximaQuestao = () => {
     setFeedback(null);
     if (currentQuestionIndex < questoes.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
@@ -29,7 +29,9 @@ const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete }: QuizProps)
       onQuizComplete();
     }
   };
+
   const verificarResposta = async (resposta: string) => {
+    const questaoAtual = questoes[currentQuestionIndex];
     if (!questaoAtual) return;
 
     setCarregando(true);
@@ -71,7 +73,7 @@ const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete }: QuizProps)
       setFeedback(false);
     }
   };
-  
+
   const renderContent = () => {
     if (carregando) {
       return <p>Carregando questões...</p>;
