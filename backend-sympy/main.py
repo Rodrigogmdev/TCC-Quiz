@@ -11,7 +11,7 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 from sqlalchemy.sql import func
-from typing import list 
+from typing import List 
 
 dotenv_path = Path(__file__).parent / ".env"
 load_dotenv(dotenv_path=dotenv_path)
