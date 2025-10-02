@@ -21,6 +21,26 @@ const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete }: QuizProps)
   const [carregando, setCarregando] = useState<boolean>(true);
   const [erro, setErro] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchQuestoes = async () => {
+      try {
+        const response = await fetch(`http://127.0.0.1:8000/questoes/?nivel=${difficultyLevel}&limit=${numberOfQuestions}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Erro ao buscar as questões.');
+        }
+        const data = await response.json();
+        setQuestoes(data);
+      } catch (error: any) {
+        setErro(error.message);
+      } finally {
+        setCarregando(false);
+      }
+    };
+
+    fetchQuestoes();
+  }, [difficultyLevel, numberOfQuestions]);
+
   const avancarParaProximaQuestao = () => {
     setFeedback(null);
     if (currentQuestionIndex < questoes.length - 1) {
@@ -34,13 +54,11 @@ const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete }: QuizProps)
     const questaoAtual = questoes[currentQuestionIndex];
     if (!questaoAtual) return;
 
-    setCarregando(true);
     setFeedback(null);
 
     const respostaAluno = parseInt(resposta, 10);
     if (isNaN(respostaAluno)) {
       console.error("A alternativa clicada não contém um número válido:", resposta);
-      setCarregando(false);
       return;
     }
 
