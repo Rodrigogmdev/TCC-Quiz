@@ -12,14 +12,17 @@ interface QuizProps {
   numberOfQuestions: number;
   difficultyLevel: number;
   onQuizComplete: () => void;
+  onReviewErrors: (erros: Questao[]) => void; // Nova prop
 }
 
-const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete }: QuizProps) => {
+const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete, onReviewErrors }: QuizProps) => {
   const [questoes, setQuestoes] = useState<Questao[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [feedback, setFeedback] = useState<boolean | null>(null);
   const [carregando, setCarregando] = useState<boolean>(true);
   const [erro, setErro] = useState<string | null>(null);
+  const [quizFinalizado, setQuizFinalizado] = useState(false);
+  const [respostas, setRespostas] = useState<{ questao: Questao; correta: boolean }[]>([]);
 
   useEffect(() => {
     const fetchQuestoes = async () => {
@@ -46,7 +49,7 @@ const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete }: QuizProps)
     if (currentQuestionIndex < questoes.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
-      onQuizComplete();
+      setQuizFinalizado(true);
     }
   };
 
@@ -75,6 +78,8 @@ const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete }: QuizProps)
       }
       const data = await response.json();
       setFeedback(data.correta);
+      setRespostas([...respostas, { questao: questaoAtual, correta: data.correta }]);
+
 
        setTimeout(() => {
         avancarParaProximaQuestao();
@@ -83,6 +88,7 @@ const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete }: QuizProps)
     } catch (error) {
       console.error('Falha ao chamar o backend:', error);
       setFeedback(false);
+      setRespostas([...respostas, { questao: questaoAtual, correta: false }]);
     }
   };
 
@@ -93,6 +99,27 @@ const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete }: QuizProps)
     if (erro) {
       return <p style={{ color: 'red' }}>Erro: {erro}</p>;
     }
+
+    if (quizFinalizado) {
+        const acertos = respostas.filter(r => r.correta).length;
+        const erros = respostas.filter(r => !r.correta).map(r => r.questao);
+
+        return (
+            <div className="results-container" style={{ textAlign: 'center' }}>
+                <h2>Quiz Finalizado!</h2>
+                <p>Você acertou {acertos} de {questoes.length} questões.</p>
+                <div className="botoes-geracao">
+                    <button className="button" onClick={onQuizComplete}>Voltar ao Início</button>
+                    {erros.length > 0 && (
+                        <button className="button" onClick={() => onReviewErrors(erros)}>
+                            Revisar erros
+                        </button>
+                    )}
+                </div>
+            </div>
+        )
+    }
+
     const questaoAtual = questoes[currentQuestionIndex];
     if (questaoAtual) {
       return (

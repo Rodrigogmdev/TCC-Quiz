@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 from sqlalchemy.sql import func
 from typing import List 
+import time
 
 dotenv_path = Path(__file__).parent / ".env"
 load_dotenv(dotenv_path=dotenv_path)
@@ -150,3 +151,26 @@ def verificar_resposta(payload: VerificacaoPayload, db: Session = Depends(get_db
     is_correta = (db_questao.resposta_correta == payload.resposta_aluno)
     
     return {"correta": is_correta}
+
+
+class ExplicacaoPayload(schemas.BaseModel):
+    questao_id: int
+
+@app.post("/gerar-explicacao")
+def gerar_explicacao(payload: ExplicacaoPayload, db: Session = Depends(get_db)):
+    """
+    Este endpoint gera uma explicação para uma questão.
+    Aqui você pode adicionar a lógica para chamar um modelo de IA.
+    """
+    db_questao = db.query(models.Questao).filter(models.Questao.id == payload.questao_id).first()
+
+    if db_questao is None:
+        raise HTTPException(status_code=404, detail="Questão não encontrada")
+
+    # Simulação de chamada de IA com um delay
+    time.sleep(1) 
+
+    # Exemplo de explicação estática. Substituir pela chamada da  IA.
+    explicacao = f"Para resolver a questão '{db_questao.pergunta}', você precisa seguir estes passos:\n\n1. **Entenda o problema:** Analise os conjuntos e a operação solicitada (união, intersecção, etc.).\n2. **Aplique a teoria:** Lembre-se das definições de cada operação de conjunto.\n3. **Calcule o resultado:** Com base na teoria, identifique os elementos que compõem a resposta correta, que é: **{db_questao.resposta_correta}**."
+    
+    return {"explicacao": explicacao}
