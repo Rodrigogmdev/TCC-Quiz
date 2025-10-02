@@ -5,7 +5,7 @@ from typing import List
 class QuestaoBase(BaseModel):
     pergunta: str
     alternativas: List[str]
-    resposta_correta: int
+    resposta_correta: str
     nivel: int
 
 class QuestaoCreate(QuestaoBase):

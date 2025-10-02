@@ -56,15 +56,9 @@ const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete }: QuizProps)
 
     setFeedback(null);
 
-    const respostaAluno = parseInt(resposta, 10);
-    if (isNaN(respostaAluno)) {
-      console.error("A alternativa clicada não contém um número válido:", resposta);
-      return;
-    }
-
     const payload = {
       questao_id: questaoAtual.id,
-      resposta_aluno: respostaAluno,
+      resposta_aluno: resposta,
     };
 
     try {

@@ -1,3 +1,4 @@
+import json
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -128,12 +129,15 @@ def ler_questoes_por_nivel(nivel: int, limit: int, db: Session = Depends(get_db)
         .all()
     if not questoes:
         raise HTTPException(status_code=404, detail="Nenhuma questão encontrada para este nível.")
+    for questao in questoes:
+        if isinstance(questao.alternativas, str):
+            questao.alternativas = json.loads(questao.alternativas)
     return questoes
 
 
 class VerificacaoPayload(schemas.BaseModel):
     questao_id: int
-    resposta_aluno: int
+    resposta_aluno: str
 
 @app.post("/verificar")
 def verificar_resposta(payload: VerificacaoPayload, db: Session = Depends(get_db)):
