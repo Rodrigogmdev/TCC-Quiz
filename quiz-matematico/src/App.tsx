@@ -4,17 +4,17 @@ import Home from './pages/Home';
 import Quiz from './pages/Quiz';
 import FAQ from './pages/Faq';
 import Auth from './pages/Auth';
-import Review from './pages/Review'; // Importe o novo componente
+import Review from './pages/Review'; 
 import { useState } from 'react';
 
-// Defina o tipo Questao para ser usado no estado
+
 interface Questao {
   id: number;
   pergunta: string;
   alternativas: string[];
 }
 
-type CurrentPage = 'home' | 'quiz' | 'faq' | 'auth' | 'review'; // Adicione 'review'
+type CurrentPage = 'home' | 'quiz' | 'faq' | 'auth' | 'review'; 
 
 function App() {
   const [currentPage, setCurrentPage] = useState<CurrentPage>('home');
@@ -22,12 +22,11 @@ function App() {
   const [difficultyLevel, setDifficultyLevel] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authToken, setAuthToken] = useState<string | null>(null);
-  const [erros, setErros] = useState<Questao[]>([]); // Estado para armazenar os erros
-
+  const [erros, setErros] = useState<Questao[]>([]); 
   const handleStartQuiz = (num: number) => {
     setNumberOfQuestions(num);
     setCurrentPage('quiz');
-    setErros([]); // Limpa os erros do quiz anterior
+    setErros([]); 
   };
 
   const handleQuizComplete = () => {
@@ -64,7 +63,7 @@ function App() {
             numberOfQuestions={numberOfQuestions}
             difficultyLevel={difficultyLevel}
             onQuizComplete={handleQuizComplete}
-            onReviewErrors={handleReviewErrors} // Passe a nova função
+            onReviewErrors={handleReviewErrors} 
           />
         );
       case 'review':
