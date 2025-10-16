@@ -8,7 +8,7 @@ class Usuario(Base):
     username = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
-
+    is_admin = Column(Boolean, default=False)
 
 class Questao(Base):
     __tablename__ = "questoes"

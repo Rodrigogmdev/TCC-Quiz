@@ -70,7 +70,28 @@ def criar_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    user = db.query(models.Usuario).filter(models.Usuario.username == username).first()
+    if user is None:
+        raise credentials_exception
+    return user
 
+def get_current_admin_user(current_user: models.Usuario = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
+    return current_user
 
 
 # --- Endpoints para Usuários ---
@@ -174,3 +195,19 @@ def gerar_explicacao(payload: ExplicacaoPayload, db: Session = Depends(get_db)):
     explicacao = f"Para resolver a questão '{db_questao.pergunta}', você precisa seguir estes passos:\n\n1. **Entenda o problema:** Analise os conjuntos e a operação solicitada (união, intersecção, etc.).\n2. **Aplique a teoria:** Lembre-se das definições de cada operação de conjunto.\n3. **Calcule o resultado:** Com base na teoria, identifique os elementos que compõem a resposta correta, que é: **{db_questao.resposta_correta}**."
     
     return {"explicacao": explicacao}
+
+@app.post("/questoes/batch/", response_model=List[schemas.Questao])
+def criar_questoes_em_lote(
+    questoes: List[schemas.QuestaoCreate],
+    db: Session = Depends(get_db),
+    current_user: models.Usuario = Depends(get_current_admin_user)
+):
+    novas_questoes = []
+    for questao_data in questoes:
+        nova_questao = models.Questao(**questao_data.dict())
+        db.add(nova_questao)
+        novas_questoes.append(nova_questao)
+    db.commit()
+    for questao in novas_questoes:
+        db.refresh(questao)
+    return novas_questoes

@@ -12,7 +12,7 @@ interface QuizProps {
   numberOfQuestions: number;
   difficultyLevel: number;
   onQuizComplete: () => void;
-  onReviewErrors: (erros: Questao[]) => void; // Nova prop
+  onReviewErrors: (erros: Questao[]) => void;
 }
 
 const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete, onReviewErrors }: QuizProps) => {
