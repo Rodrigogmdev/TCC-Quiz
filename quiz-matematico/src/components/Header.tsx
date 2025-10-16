@@ -1,14 +1,16 @@
 interface HeaderProps {
   isLoggedIn: boolean;
+  isAdmin: boolean;
   onNavigateToAuth: () => void;
-  onNavigateToFaq: () => void; // Adicionamos a navegação do FAQ aqui
+  onNavigateToFaq: () => void;
+  onNavigateToPost: () => void;
   onLogout: () => void;
 }
 
-const Header = ({ isLoggedIn, onNavigateToAuth, onNavigateToFaq, onLogout }: HeaderProps) => {
+const Header = ({ isLoggedIn, isAdmin, onNavigateToAuth, onNavigateToFaq, onNavigateToPost, onLogout }: HeaderProps) => {
   return (
     <header className="header-container">
-      <div className="header-content"> {/* Adicionamos esta div como um wrapper */}
+      <div className="header-content">
         <div className="header-title">
           <h3>Quiz de Conjuntos</h3>
         </div>
@@ -16,6 +18,11 @@ const Header = ({ isLoggedIn, onNavigateToAuth, onNavigateToFaq, onLogout }: Hea
           <button className="nav-button" onClick={onNavigateToFaq}>
             FAQ
           </button>
+          {isAdmin && (
+            <button className="nav-button" onClick={onNavigateToPost}>
+              Postar
+            </button>
+          )}
           {isLoggedIn ? (
             <button className="button" onClick={onLogout}>
               Sair
@@ -26,7 +33,7 @@ const Header = ({ isLoggedIn, onNavigateToAuth, onNavigateToFaq, onLogout }: Hea
             </button>
           )}
         </nav>
-      </div> {/* Fechamento da div wrapper */}
+      </div>
     </header>
   );
 };

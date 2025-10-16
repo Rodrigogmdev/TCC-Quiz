@@ -5,6 +5,7 @@ import Quiz from './pages/Quiz';
 import FAQ from './pages/Faq';
 import Auth from './pages/Auth';
 import Review from './pages/Review'; 
+import Post from './pages/Post';
 import { useState } from 'react';
 
 
@@ -14,13 +15,14 @@ interface Questao {
   alternativas: string[];
 }
 
-type CurrentPage = 'home' | 'quiz' | 'faq' | 'auth' | 'review'; 
+type CurrentPage = 'home' | 'quiz' | 'faq' | 'auth' | 'review' | 'post';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<CurrentPage>('home');
   const [numberOfQuestions, setNumberOfQuestions] = useState(0);
   const [difficultyLevel, setDifficultyLevel] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [erros, setErros] = useState<Questao[]>([]); 
   const handleStartQuiz = (num: number) => {
@@ -42,16 +44,35 @@ function App() {
   const navigateToHome = () => setCurrentPage('home');
   const navigateToFaq = () => setCurrentPage('faq');
   const navigateToAuth = () => setCurrentPage('auth');
+  const navigateToPost = () => setCurrentPage('post');
 
-  const handleLoginSuccess = (token: string) => {
+  const handleLoginSuccess = async (token: string) => {
     setAuthToken(token);
     setIsLoggedIn(true);
-    setCurrentPage('home'); 
-  };
+    localStorage.setItem('authToken', token);
+  try {
+      const response = await fetch('http://127.0.0.1:8000/users/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const userData = await response.json();
+        setIsAdmin(userData.is_admin); 
+      }
+    } catch (error) {
+      console.error("Erro ao buscar dados do usuário:", error);
+    }
 
-  const handleLogout = () => {
+    setCurrentPage('home');
+  };
+  
+
+const handleLogout = () => {
     setAuthToken(null);
     setIsLoggedIn(false);
+    setIsAdmin(false); 
+    localStorage.removeItem('authToken');
     setCurrentPage('home');
   };
 
@@ -77,6 +98,8 @@ function App() {
         return <FAQ onNavigateToHome={navigateToHome} />;
       case 'auth':
         return <Auth onLoginSuccess={handleLoginSuccess} onNavigateToHome={navigateToHome} />;
+      case 'post':
+        return <Post />;
       case 'home':
       default:
         return (
@@ -92,11 +115,13 @@ function App() {
 
    return (
     <>
-      <Header 
+      <Header
         isLoggedIn={isLoggedIn}
+        isAdmin={isAdmin} 
         onNavigateToAuth={navigateToAuth}
         onLogout={handleLogout}
         onNavigateToFaq={navigateToFaq}
+        onNavigateToPost={navigateToPost} 
       />
       
       <div className="container">

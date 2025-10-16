@@ -96,6 +96,8 @@ def get_current_admin_user(current_user: models.Usuario = Depends(get_current_us
 
 # --- Endpoints para Usuários ---
 
+
+
 @app.post("/usuarios/", response_model=schemas.Usuario)
 def criar_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
     db_usuario = db.query(models.Usuario).filter(models.Usuario.username == usuario.username).first()
@@ -109,6 +111,10 @@ def criar_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db))
     db.commit()
     db.refresh(novo_usuario)
     return novo_usuario
+
+@app.get("/users/me", response_model=schemas.Usuario)
+def read_users_me(current_user: models.Usuario = Depends(get_current_user)):
+    return current_user
 
 # ---  ENDPOINT DE LOGIN ---
 @app.post("/login")
@@ -200,7 +206,8 @@ def gerar_explicacao(payload: ExplicacaoPayload, db: Session = Depends(get_db)):
 def criar_questoes_em_lote(
     questoes: List[schemas.QuestaoCreate],
     db: Session = Depends(get_db),
-    current_user: models.Usuario = Depends(get_current_admin_user)
+    # Esta dependência garante que apenas admins possam acessar
+    current_admin: models.Usuario = Depends(get_current_admin_user)
 ):
     novas_questoes = []
     for questao_data in questoes:
