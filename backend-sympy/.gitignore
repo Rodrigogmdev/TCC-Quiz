@@ -1,5 +1,4 @@
 .venv
-.env
 __pycache__
 popular_banco.py
 limpar_banco.py

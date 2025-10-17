@@ -15,8 +15,8 @@ from sqlalchemy.sql import func
 from typing import List 
 import time
 import google.generativeai as genai
-dotenv_path = Path(__file__).parent / ".env"
-load_dotenv(dotenv_path=dotenv_path)
+
+load_dotenv()
 
 # --- Bloco de configuração do JWT ---
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -192,7 +192,7 @@ def gerar_explicacao(payload: ExplicacaoPayload, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Questão não encontrada")
 
     try:
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         
         prompt = f"""
         Explique passo a passo como resolver a seguinte questão de Teoria dos Conjuntos, sem simplesmente dar a resposta final de cara.
@@ -241,7 +241,14 @@ def chatbot_ajuda(payload: ChatPayload, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Questão não encontrada")
 
     try:
-        model = genai.GenerativeModel('gemini-pro')
+        safety_settings = [
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+        ]
+
+        model = genai.GenerativeModel('gemini-2.5-flash')
         
         prompt = f"""
         Você é um tutor de matemática especializado em Teoria dos Conjuntos. Um aluno está resolvendo a seguinte questão e pediu ajuda:
@@ -256,9 +263,19 @@ def chatbot_ajuda(payload: ChatPayload, db: Session = Depends(get_db)):
         Dê dicas, explique conceitos relevantes, mas não resolva o problema para ele.
         """
         
-        response = model.generate_content(prompt)
+        response = model.generate_content(prompt, safety_settings=safety_settings)
         
+     
+        # verificar o motivo do bloqueio
+        if not response.parts:
+            block_reason = response.prompt_feedback.block_reason
+            raise HTTPException(status_code=400, detail=f"A requisição foi bloqueada pela API. Motivo: {block_reason}")
+
+
         return {"resposta_chatbot": response.text}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Erro ao comunicar com o chatbot.")
+        print(f"!!!!!!!!!! OCORREU UM ERRO NA API {e} !!!!!!!!!!") 
+        
+
+        raise HTTPException(status_code=500, detail=f"Erro na API do Gemini: {str(e)}")
