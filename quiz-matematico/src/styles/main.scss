@@ -159,3 +159,92 @@ body {
     }
   }
 }
+
+// Adicione ao final de main.scss
+
+.chatbot-container {
+  position: fixed; // Ou absolute, dependendo de onde você o coloca
+  bottom: 2rem;
+  right: 2rem;
+  width: 350px;
+  background-color: lighten($container-bg, 10%);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.chatbot-header {
+  padding: 1rem;
+  background-color: darken($container-bg, 5%);
+  h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: $primary-color;
+  }
+}
+
+.chatbot-messages {
+  padding: 1rem;
+  height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  .message {
+    padding: 0.6rem 1rem;
+    border-radius: 18px;
+    max-width: 80%;
+
+    &.user {
+      background-color: $primary-color;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    &.bot {
+      background-color: lighten($container-bg, 20%);
+      color: $text-color;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    p { margin: 0; }
+  }
+}
+
+.chatbot-form {
+  display: flex;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  
+  input {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    padding: 1rem;
+    color: $text-color;
+    font-size: 1rem;
+    &:focus {
+      outline: none;
+    }
+  }
+
+  button {
+    margin: 0.5rem;
+    // Pode usar a classe .button se quiser
+  }
+}
+
+.chat-toggle-button {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    z-index: 999;
+}

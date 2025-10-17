@@ -14,7 +14,7 @@ from pathlib import Path
 from sqlalchemy.sql import func
 from typing import List 
 import time
-
+import google.generativeai as genai
 dotenv_path = Path(__file__).parent / ".env"
 load_dotenv(dotenv_path=dotenv_path)
 
@@ -25,9 +25,13 @@ if SECRET_KEY is None:
     
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-# Esquema para o token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
+# --- Bloco de configuração do Gemini ---
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("A variável de ambiente GEMINI_API_KEY não foi definida.")
+genai.configure(api_key=GEMINI_API_KEY)
 
 # cria as tabelas no banco de dados (se elas não existirem)
 models.Base.metadata.create_all(bind=engine)
@@ -93,10 +97,7 @@ def get_current_admin_user(current_user: models.Usuario = Depends(get_current_us
         raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
     return current_user
 
-
 # --- Endpoints para Usuários ---
-
-
 
 @app.post("/usuarios/", response_model=schemas.Usuario)
 def criar_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
@@ -119,10 +120,10 @@ def read_users_me(current_user: models.Usuario = Depends(get_current_user)):
 # ---  ENDPOINT DE LOGIN ---
 @app.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    # 1. Busca o usuário no banco
+    #  Busca o usuário no banco
     usuario = db.query(models.Usuario).filter(models.Usuario.username == form_data.username).first()
 
-    # 2. Verifica se o usuário existe e se a senha está correta
+    # Verifica se o usuário existe e se a senha está correta
     if not usuario or not pwd_context.verify(form_data.password, usuario.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -130,13 +131,13 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # 3. Cria o token de acesso
+
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = criar_access_token(
         data={"sub": usuario.username}, expires_delta=access_token_expires
     )
 
-    # 4. Retorna o token
+
     return {"access_token": access_token, "token_type": "bearer"}
 
 # --- Endpoints para Questões ---
@@ -185,28 +186,37 @@ class ExplicacaoPayload(schemas.BaseModel):
 
 @app.post("/gerar-explicacao")
 def gerar_explicacao(payload: ExplicacaoPayload, db: Session = Depends(get_db)):
-    """
-    Este endpoint gera uma explicação para uma questão.
-    Aqui você pode adicionar a lógica para chamar um modelo de IA.
-    """
     db_questao = db.query(models.Questao).filter(models.Questao.id == payload.questao_id).first()
 
     if db_questao is None:
         raise HTTPException(status_code=404, detail="Questão não encontrada")
 
-    # Simulação de chamada de IA com um delay
-    time.sleep(1) 
+    try:
+        model = genai.GenerativeModel('gemini-pro')
+        
+        prompt = f"""
+        Explique passo a passo como resolver a seguinte questão de Teoria dos Conjuntos, sem simplesmente dar a resposta final de cara.
+        A resposta correta é: {db_questao.resposta_correta}.
 
-    # Exemplo de explicação estática. Substituir pela chamada da  IA.
-    explicacao = f"Para resolver a questão '{db_questao.pergunta}', você precisa seguir estes passos:\n\n1. **Entenda o problema:** Analise os conjuntos e a operação solicitada (união, intersecção, etc.).\n2. **Aplique a teoria:** Lembre-se das definições de cada operação de conjunto.\n3. **Calcule o resultado:** Com base na teoria, identifique os elementos que compõem a resposta correta, que é: **{db_questao.resposta_correta}**."
+        Questão:
+        Pergunta: {db_questao.pergunta}
+        Alternativas: {db_questao.alternativas}
+
+        Seja didático e guie o raciocínio.
+        """
+        
+        response = model.generate_content(prompt)
+        
+        return {"explicacao": response.text}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Erro ao gerar a explicação com a IA.")
     
-    return {"explicacao": explicacao}
-
 @app.post("/questoes/batch/", response_model=List[schemas.Questao])
 def criar_questoes_em_lote(
     questoes: List[schemas.QuestaoCreate],
     db: Session = Depends(get_db),
-    # Esta dependência garante que apenas admins possam acessar
+   
     current_admin: models.Usuario = Depends(get_current_admin_user)
 ):
     novas_questoes = []
@@ -218,3 +228,37 @@ def criar_questoes_em_lote(
     for questao in novas_questoes:
         db.refresh(questao)
     return novas_questoes
+
+class ChatPayload(schemas.BaseModel):
+    questao_id: int
+    pergunta_usuario: str
+
+@app.post("/chatbot")
+def chatbot_ajuda(payload: ChatPayload, db: Session = Depends(get_db)):
+    db_questao = db.query(models.Questao).filter(models.Questao.id == payload.questao_id).first()
+
+    if db_questao is None:
+        raise HTTPException(status_code=404, detail="Questão não encontrada")
+
+    try:
+        model = genai.GenerativeModel('gemini-pro')
+        
+        prompt = f"""
+        Você é um tutor de matemática especializado em Teoria dos Conjuntos. Um aluno está resolvendo a seguinte questão e pediu ajuda:
+
+        Questão:
+        Pergunta: "{db_questao.pergunta}"
+        Alternativas: {db_questao.alternativas}
+
+        A pergunta do aluno é: "{payload.pergunta_usuario}"
+
+        Sua tarefa é ajudar o aluno a pensar na solução, mas **NUNCA** dê a resposta final. A resposta correta é "{db_questao.resposta_correta}". Use essa informação apenas para guiar sua explicação.
+        Dê dicas, explique conceitos relevantes, mas não resolva o problema para ele.
+        """
+        
+        response = model.generate_content(prompt)
+        
+        return {"resposta_chatbot": response.text}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Erro ao comunicar com o chatbot.")

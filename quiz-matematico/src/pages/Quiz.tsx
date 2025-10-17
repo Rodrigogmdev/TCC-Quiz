@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import QuizCard from '../components/Quizcard';
 import Feedback from '../components/feedback';
+import Chatbot from '../components/chatbot';
 
 interface Questao {
   id: number;
@@ -23,6 +24,7 @@ const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete, onReviewErro
   const [erro, setErro] = useState<string | null>(null);
   const [quizFinalizado, setQuizFinalizado] = useState(false);
   const [respostas, setRespostas] = useState<{ questao: Questao; correta: boolean }[]>([]);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     const fetchQuestoes = async () => {
@@ -130,16 +132,26 @@ const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete, onReviewErro
             onResponder={verificarResposta}
           />
           <Feedback correta={feedback} />
+
+          {isChatOpen && <Chatbot questaoId={questaoAtual.id} />}
         </>
       );
     }
     return <p>Nenhuma questão encontrada.</p>;
   };
 
-
   return (
     <div>
       {renderContent()}
+      {!carregando && !erro && !quizFinalizado && (
+        <button 
+          className="button chat-toggle-button" 
+          onClick={() => setIsChatOpen(!isChatOpen)}
+        >
+          💬
+        </button>
+      )}
+
     </div>
   );
 };
