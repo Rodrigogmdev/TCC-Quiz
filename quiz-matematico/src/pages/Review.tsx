@@ -22,7 +22,7 @@ const Review = ({ erros, onFinishReview }: ReviewProps) => {
         setCarregando(true);
         const questaoAtual = erros[currentIndex];
         try {
-          const response = await fetch('http://127.0.0.1:8000/gerar-explicacao', {
+          const response = await fetch('${import.meta.env.VITE_API_URL}/gerar-explicacao', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

@@ -1,2 +1,42 @@
+# Arquivos Gerais
 .env
+.env.*
+*.local
+
+# Banco de dados local (nunca deve ir para o Git)
 quiz.db
+quiz.db-journal
+
+# backend Python (backend/)
+backend/.venv/
+backend/__pycache__/
+backend/popular_banco.py
+backend/limpar_banco.py
+backend/export_questoes.py
+backend/questoes_backup.json
+
+
+# Frontend Node (quiz-matematico/)
+quiz-matematico/node_modules/
+quiz-matematico/dist/
+quiz-matematico/dist-ssr/
+quiz-matematico/.env
+quiz-matematico/.env.*
+
+# Logs e arquivos de editor
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

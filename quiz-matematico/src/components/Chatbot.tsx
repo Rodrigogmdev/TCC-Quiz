@@ -1,13 +1,9 @@
-// quiz-matematico/src/components/Chatbot.tsx
-
 import { useState } from 'react';
 
-// Define as props que o componente vai receber
 interface ChatbotProps {
   questaoId: number;
 }
 
-// Define a estrutura de uma mensagem no chat
 interface ChatMessage {
   type: 'user' | 'bot';
   text: string;
@@ -28,7 +24,7 @@ const Chatbot = ({ questaoId }: ChatbotProps) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/chatbot', {
+      const response = await fetch('${import.meta.env.VITE_API_URL}/chatbot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

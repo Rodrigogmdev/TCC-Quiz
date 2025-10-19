@@ -1,8 +1,0 @@
-.venv
-__pycache__
-popular_banco.py
-limpar_banco.py
-export_questoes.py
-questoes_backup.json
-quiz.db-journal
-quiz.db

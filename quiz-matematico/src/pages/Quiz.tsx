@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import QuizCard from '../components/Quizcard';
 import Feedback from '../components/feedback';
-import Chatbot from '../components/chatbot';
+import Chatbot from '../components/Chatbot';
 
 interface Questao {
   id: number;
@@ -29,7 +29,7 @@ const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete, onReviewErro
   useEffect(() => {
     const fetchQuestoes = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/questoes/?nivel=${difficultyLevel}&limit=${numberOfQuestions}`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/questoes/?nivel=${difficultyLevel}&limit=${numberOfQuestions}`);
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.detail || 'Erro ao buscar as questões.');
@@ -67,7 +67,7 @@ const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete, onReviewErro
     };
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/verificar', {
+      const response = await fetch('${import.meta.env.VITE_API_URL}/verificar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
