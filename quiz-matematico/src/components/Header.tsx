@@ -1,36 +1,38 @@
+import { Link } from 'react-router-dom';
+
 interface HeaderProps {
   isLoggedIn: boolean;
   isAdmin: boolean;
-  onNavigateToAuth: () => void;
-  onNavigateToFaq: () => void;
-  onNavigateToPost: () => void;
   onLogout: () => void;
 }
 
-const Header = ({ isLoggedIn, isAdmin, onNavigateToAuth, onNavigateToFaq, onNavigateToPost, onLogout }: HeaderProps) => {
+const Header = ({ isLoggedIn, isAdmin, onLogout }: HeaderProps) => {
   return (
     <header className="header-container">
       <div className="header-content">
         <div className="header-title">
-          <h3>Quiz de Conjuntos</h3>
+          <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <h3>Quiz de Conjuntos</h3>
+          </Link>
         </div>
         <nav className="header-nav">
-          <button className="nav-button" onClick={onNavigateToFaq}>
+          <Link to="/faq" className="nav-button">
             FAQ
-          </button>
+          </Link>
           {isAdmin && (
-            <button className="nav-button" onClick={onNavigateToPost}>
+            <Link to="/post" className="nav-button">
               Postar
-            </button>
+            </Link>
           )}
+
           {isLoggedIn ? (
             <button className="button" onClick={onLogout}>
               Sair
             </button>
           ) : (
-            <button className="button" onClick={onNavigateToAuth}>
+            <Link to="/auth" className="button">
               Entrar / Cadastrar
-            </button>
+            </Link>
           )}
         </nav>
       </div>

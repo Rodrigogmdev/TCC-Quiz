@@ -2,7 +2,6 @@ import { useState } from 'react';
 
 interface HomeProps {
   onStartQuiz: (numberOfQuestions: number) => void;
-  onNavigateToFaq: () => void;
   isLoggedIn: boolean;
   setDifficultyLevel: (level: number) => void; 
 }

@@ -8,6 +8,7 @@ import Review from './pages/Review';
 import Post from './pages/Post';
 import { useState } from 'react';
 
+import { Routes, Route, useNavigate } from 'react-router-dom';
 
 interface Questao {
   id: number;
@@ -15,43 +16,38 @@ interface Questao {
   alternativas: string[];
 }
 
-type CurrentPage = 'home' | 'quiz' | 'faq' | 'auth' | 'review' | 'post';
-
-function App() {
-  const [currentPage, setCurrentPage] = useState<CurrentPage>('home');
+function App() {  
   const [numberOfQuestions, setNumberOfQuestions] = useState(0);
   const [difficultyLevel, setDifficultyLevel] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [erros, setErros] = useState<Questao[]>([]); 
+
+  const navigate = useNavigate();
+  
   const handleStartQuiz = (num: number) => {
     setNumberOfQuestions(num);
-    setCurrentPage('quiz');
     setErros([]); 
+    navigate('/quiz'); 
   };
 
   const handleQuizComplete = () => {
-    setCurrentPage('home');
     setDifficultyLevel(0);
+    navigate('/'); 
   };
 
   const handleReviewErrors = (questoesErradas: Questao[]) => {
     setErros(questoesErradas);
-    setCurrentPage('review');
+    navigate('/review'); 
   };
-
-  const navigateToHome = () => setCurrentPage('home');
-  const navigateToFaq = () => setCurrentPage('faq');
-  const navigateToAuth = () => setCurrentPage('auth');
-  const navigateToPost = () => setCurrentPage('post');
 
   const handleLoginSuccess = async (token: string) => {
     setAuthToken(token);
     setIsLoggedIn(true);
     localStorage.setItem('authToken', token);
-  try {
-      const response = await fetch('http://127.0.0.1:8000/users/me', {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/me`, { 
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -63,54 +59,16 @@ function App() {
     } catch (error) {
       console.error("Erro ao buscar dados do usuário:", error);
     }
-
-    setCurrentPage('home');
+    navigate('/'); 
   };
   
 
-const handleLogout = () => {
+  const handleLogout = () => {
     setAuthToken(null);
     setIsLoggedIn(false);
     setIsAdmin(false); 
     localStorage.removeItem('authToken');
-    setCurrentPage('home');
-  };
-
-  const renderCurrentPage = () => {
-    switch (currentPage) {
-      case 'quiz':
-        return (
-          <Quiz
-            numberOfQuestions={numberOfQuestions}
-            difficultyLevel={difficultyLevel}
-            onQuizComplete={handleQuizComplete}
-            onReviewErrors={handleReviewErrors} 
-          />
-        );
-      case 'review':
-        return (
-            <Review
-                erros={erros}
-                onFinishReview={handleQuizComplete}
-            />
-        );
-      case 'faq':
-        return <FAQ onNavigateToHome={navigateToHome} />;
-      case 'auth':
-        return <Auth onLoginSuccess={handleLoginSuccess} onNavigateToHome={navigateToHome} />;
-      case 'post':
-        return <Post />;
-      case 'home':
-      default:
-        return (
-          <Home
-            onStartQuiz={handleStartQuiz}
-            setDifficultyLevel={setDifficultyLevel}
-            onNavigateToFaq={navigateToFaq}
-            isLoggedIn={isLoggedIn}
-          />
-        );
-    }
+    navigate('/'); 
   };
 
    return (
@@ -118,14 +76,60 @@ const handleLogout = () => {
       <Header
         isLoggedIn={isLoggedIn}
         isAdmin={isAdmin} 
-        onNavigateToAuth={navigateToAuth}
         onLogout={handleLogout}
-        onNavigateToFaq={navigateToFaq}
-        onNavigateToPost={navigateToPost} 
       />
       
       <div className="container">
-        {renderCurrentPage()}
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              <Home
+                onStartQuiz={handleStartQuiz}
+                setDifficultyLevel={setDifficultyLevel}
+                isLoggedIn={isLoggedIn}
+              />
+            } 
+          />
+          <Route 
+            path="/quiz" 
+            element={
+              <Quiz
+                numberOfQuestions={numberOfQuestions}
+                difficultyLevel={difficultyLevel}
+                onQuizComplete={handleQuizComplete}
+                onReviewErrors={handleReviewErrors} 
+              />
+            } 
+          />
+          <Route 
+            path="/review" 
+            element={
+              <Review
+                erros={erros}
+                onFinishReview={handleQuizComplete}
+              />
+            } 
+          />
+          <Route 
+            path="/faq" 
+            element={<FAQ onNavigateToHome={() => navigate('/')} />} 
+          />
+          <Route 
+            path="/auth" 
+            element={
+              <Auth 
+                onLoginSuccess={handleLoginSuccess} 
+                onNavigateToHome={() => navigate('/')} 
+              />
+            } 
+          />
+          <Route 
+            path="/post" 
+            element={<Post />} 
+          />
+          <Route path="*" element={<h2>Página não encontrada</h2>} />
+        </Routes>
       </div>
     </>
   );
