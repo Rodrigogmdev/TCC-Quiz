@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import QuizCard from '../components/Quizcard';
-import Feedback from '../components/feedback';
-import Chatbot from '../components/Chatbot';
+import Feedback from '../components/Feedback';
+import Chatbot from '../components/ChatBot';
 
 interface Questao {
   id: number;

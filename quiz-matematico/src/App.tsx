@@ -7,6 +7,7 @@ import Auth from './pages/Auth';
 import Review from './pages/Review'; 
 import Post from './pages/Post';
 import { useState } from 'react';
+import { useAuth } from './context/AuthContext';
 
 import { Routes, Route, useNavigate } from 'react-router-dom';
 
@@ -19,10 +20,9 @@ interface Questao {
 function App() {  
   const [numberOfQuestions, setNumberOfQuestions] = useState(0);
   const [difficultyLevel, setDifficultyLevel] = useState(0);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [authToken, setAuthToken] = useState<string | null>(null);
   const [erros, setErros] = useState<Questao[]>([]); 
+
+  const { isLoggedIn, isAdmin, login, logout } = useAuth();
 
   const navigate = useNavigate();
   
@@ -43,9 +43,7 @@ function App() {
   };
 
   const handleLoginSuccess = async (token: string) => {
-    setAuthToken(token);
-    setIsLoggedIn(true);
-    localStorage.setItem('authToken', token);
+    let adminStatus = false;
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/users/me`, { 
         headers: {
@@ -54,7 +52,7 @@ function App() {
       });
       if (response.ok) {
         const userData = await response.json();
-        setIsAdmin(userData.is_admin); 
+        adminStatus = userData.is_admin;
       }
     } catch (error) {
       console.error("Erro ao buscar dados do usuário:", error);
@@ -64,10 +62,8 @@ function App() {
   
 
   const handleLogout = () => {
-    setAuthToken(null);
-    setIsLoggedIn(false);
-    setIsAdmin(false); 
-    localStorage.removeItem('authToken');
+    logout(); 
+    navigate('/');
     navigate('/'); 
   };
 

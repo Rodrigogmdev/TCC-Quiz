@@ -1,19 +1,25 @@
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext'; 
 
 const Post = () => {
   const [jsonInput, setJsonInput] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
+  const { token } = useAuth(); 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
     setError('');
 
+    if (!token) {
+      setError('Você não está autenticado. Faça o login para enviar questões.');
+      return;
+    }
+
     try {
       const questoes = JSON.parse(jsonInput);
-      const token = localStorage.getItem('authToken'); // Assumindo que você salva o token no localStorage
-
       const response = await fetch(`${import.meta.env.VITE_API_URL}/questoes/batch/`, {
         method: 'POST',
         headers: {
