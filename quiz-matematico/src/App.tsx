@@ -57,6 +57,7 @@ function App() {
     } catch (error) {
       console.error("Erro ao buscar dados do usuário:", error);
     }
+    login(token, adminStatus);
     navigate('/'); 
   };
   
