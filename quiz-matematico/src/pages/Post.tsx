@@ -14,7 +14,7 @@ const Post = () => {
       const questoes = JSON.parse(jsonInput);
       const token = localStorage.getItem('authToken'); // Assumindo que você salva o token no localStorage
 
-      const response = await fetch('${import.meta.env.VITE_API_URL}/questoes/batch/', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/questoes/batch/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

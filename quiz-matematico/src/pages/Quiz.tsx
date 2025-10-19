@@ -67,7 +67,7 @@ const Quiz = ({ numberOfQuestions, difficultyLevel, onQuizComplete, onReviewErro
     };
 
     try {
-      const response = await fetch('${import.meta.env.VITE_API_URL}/verificar', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/verificar`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

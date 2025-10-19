@@ -22,7 +22,7 @@ const Auth = ({ onLoginSuccess, onNavigateToHome }: AuthProps) => {
       formData.append('password', password);
 
       try {
-        const response = await fetch('${import.meta.env.VITE_API_URL}/login', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -45,7 +45,7 @@ const Auth = ({ onLoginSuccess, onNavigateToHome }: AuthProps) => {
     } else {
       // --- Lógica de Cadastro ---
       try {
-        const response = await fetch('${import.meta.env.VITE_API_URL}/usuarios/', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/usuarios/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
