@@ -1,4 +1,5 @@
 
+@use "sass:color";
 $bg-color: #121212;
 $primary-color: #E53935;
 $text-color: #FFFFFF;
@@ -10,7 +11,7 @@ $error-color: #F44336;
 body {
   margin: 0;
   background-color: $bg-color;
-  font-family: 'Roboto', sans-serif; // Garanta que a fonte base está aqui também
+  font-family: 'Roboto', sans-serif; 
   color: $text-color;
 }
 body {
@@ -21,26 +22,22 @@ body {
 
 .header-container {
   width: 100%;
-  padding: 1rem 0; // Espaçamento vertical
-  background-color: $container-bg; // Usando a cor de fundo do container para consistência
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); // Sombra para dar destaque
+  padding: 1rem 0; 
+  background-color: $container-bg; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
   border-bottom: 1px solid rgba(0, 0, 0, 0.1); // Linha sutil de separação
 }
 
-// O conteúdo dentro do header, que será centralizado
 .header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  // Mesmas propriedades do .container para garantir o alinhamento perfeito
   max-width: 600px;
   margin: 0 auto;
   padding: 0 2.5rem; // Espaçamento lateral para não colar nas bordas em telas menores
   box-sizing: border-box;
 }
 
-// Estilos para o título, navegação e botões (podem ser os mesmos de antes)
 .header-title h3 {
   margin: 0;
   font-family: 'Poppins', sans-serif;
@@ -71,7 +68,7 @@ body {
   }
 }
 
-.header-nav .button { // Deixa o botão de login/logout um pouco menor no header
+.header-nav .button {
   padding: 8px 16px;
   font-size: 0.9rem;
 }
@@ -83,7 +80,7 @@ body {
   margin: 3rem auto;
   padding: 2.5rem;
  
-  background: linear-gradient(145deg, lighten($container-bg, 5%), darken($container-bg, 5%));
+  background: linear-gradient(145deg, color.scale($container-bg, $lightness: 5%), color.scale($container-bg, $lightness: -5%));
   border-radius: 16px; 
   
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -104,7 +101,7 @@ body {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
 
   &:hover {
-    background-color: darken($primary-color, 10%); 
+    background-color: color.scale($primary-color, $lightness: -10%); 
     transform: translateY(-3px); 
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); 
   }
@@ -112,6 +109,64 @@ body {
   &:active {
     transform: translateY(1px); 
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.auth-container{
+  text-align: center;
+  h2{
+    color: $primary-color;
+    font-size: 2rem;
+    margin-bottom: 2.5rem;
+  }
+  
+  form{
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    div {
+      display: flex;
+      flex-direction: column;
+      text-align: left; // Alinha a label à esquerda
+    }
+  }
+  label{
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: color.scale($text-color, $lightness: 30%);
+    font-weight: 500;
+  }
+  input[type="text"],
+  input[type="password"] {
+    background-color: color.scale($container-bg, $lightness: 5%); 
+    border: 1px solid color.scale($container-bg, $lightness: -10%); 
+    border-radius: 6px;                          
+    padding: 12px 15px;                         
+    color: $text-color;                          
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; 
+    &:focus {
+      outline: none; 
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.4); 
+    }
+  }
+  .toggle-button{
+    background: none;
+    border: none;
+    color: $primary-color;
+    cursor: pointer;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 5px;
+    transition: color 0.2 ease;
+
+    &:hover{
+      color: color.scale($primary-color, $lightness: 15%);
+      text-decoration: underline;
+    }
   }
 }
 
@@ -127,9 +182,6 @@ body {
   gap: 1rem;
 }
 
-// ... (código SCSS existente)
-
-// Estilos para a página de FAQ
 .faq-container {
   text-align: left;
   
@@ -159,15 +211,12 @@ body {
     }
   }
 }
-
-// Adicione ao final de main.scss
-
 .chatbot-container {
-  position: fixed; // Ou absolute, dependendo de onde você o coloca
+  position: fixed;
   bottom: 2rem;
   right: 2rem;
   width: 350px;
-  background-color: lighten($container-bg, 10%);
+  background-color: color.scale($container-bg, $lightness: 10%);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   display: flex;
@@ -178,7 +227,7 @@ body {
 
 .chatbot-header {
   padding: 1rem;
-  background-color: darken($container-bg, 5%);
+  background-color: color.scale($container-bg, $lightness: -5%);
   h4 {
     margin: 0;
     font-size: 1.1rem;
@@ -207,7 +256,7 @@ body {
     }
 
     &.bot {
-      background-color: lighten($container-bg, 20%);
+      background-color: color.scale($container-bg, $lightness: 20%);
       color: $text-color;
       align-self: flex-start;
       border-bottom-left-radius: 4px;
@@ -234,7 +283,6 @@ body {
 
   button {
     margin: 0.5rem;
-    // Pode usar a classe .button se quiser
   }
 }
 

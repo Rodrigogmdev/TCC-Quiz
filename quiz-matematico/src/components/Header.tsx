@@ -26,11 +26,11 @@ const Header = ({ isLoggedIn, isAdmin, onLogout }: HeaderProps) => {
           )}
 
           {isLoggedIn ? (
-            <button className="button" onClick={onLogout}>
+            <button className="nav-button" onClick={onLogout}>
               Sair
             </button>
           ) : (
-            <Link to="/auth" className="button">
+            <Link to="/auth" className="nav-button">
               Entrar / Cadastrar
             </Link>
           )}
